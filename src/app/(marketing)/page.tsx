@@ -1,9 +1,11 @@
 
 import { Button } from '@/components/ui/button'
 import { ClerkLoaded, ClerkLoading, SignInButton, SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs'
-import { Link, Loader } from 'lucide-react'
+import { Loader } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
+
 
 
 const MarketingPage = () => {
