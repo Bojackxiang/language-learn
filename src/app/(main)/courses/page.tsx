@@ -1,6 +1,6 @@
-import React from 'react'
-import { courses } from '../../../../db/query'
-import List from './component/list'
+import React, { useTransition } from 'react'
+import List from './list'
+import { getCourses, getUserProgress } from '../../../../db/query'
 
 
 interface Props {
@@ -8,13 +8,16 @@ interface Props {
 }
 
 const CoursesPage = async ({ }: Props) => {
-  const courseData = await courses()
+  const courseData = await getCourses()
+  const userProgressData = await getUserProgress()
+  console.log(userProgressData, courseData)
+
   return (
     <div className="w-full">
-      <h1></h1>
+      couorses
       <List
         courses={courseData}
-        activeCourseId={1} />
+        activeCourseId={userProgressData?.activeCourseId} />
     </div>
 
   )
