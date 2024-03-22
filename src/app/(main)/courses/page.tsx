@@ -10,11 +10,9 @@ interface Props {
 const CoursesPage = async ({ }: Props) => {
   const courseData = await getCourses()
   const userProgressData = await getUserProgress()
-  console.log(userProgressData, courseData)
 
   return (
     <div className="w-full">
-      couorses
       <List
         courses={courseData}
         activeCourseId={userProgressData?.activeCourseId} />
