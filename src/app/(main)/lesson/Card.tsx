@@ -35,8 +35,8 @@ export const Card = ({
 }: Props) => {
   const [audio, _, controls] = useAudio({ src: audioSrc || "" });
 
+
   const handleClick = useCallback(() => {
-    console.log("clicked")
     if (disabled === null) {
       return
     }

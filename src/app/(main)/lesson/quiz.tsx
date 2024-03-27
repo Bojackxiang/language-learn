@@ -37,6 +37,8 @@ const Quiz = ({
     const uncompletedIndex = challenges.findIndex((challenge) => !challenge.completed);
     return uncompletedIndex === -1 ? 0 : uncompletedIndex;
   });
+  const [selectedOption, setSelectedOption] = useState<number | undefined>(undefined);
+  const [status, setStatus] = useState<"correct" | "wrong" | "none">("none")
 
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
@@ -45,6 +47,11 @@ const Quiz = ({
   const title = challenge.type === "ASSIST"
     ? "Select the correct meaning"
     : challenge.question;
+
+  const onHandleAnswerSelected = (id: number) => {
+    setSelectedOption(id)
+
+  }
 
   return (
     <>
@@ -65,9 +72,9 @@ const Quiz = ({
               )}
               <Challenge
                 options={options}
-                onSelect={() => { }}
-                status={"none"}
-                selectedOption={1}
+                onSelect={onHandleAnswerSelected}
+                status={status}
+                selectedOption={selectedOption}
                 disabled={false}
                 type={challenge.type}
               />
