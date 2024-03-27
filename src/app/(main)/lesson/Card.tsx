@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image";
 import { useCallback } from "react";
 import { useAudio, useKey } from "react-use";
@@ -31,18 +33,22 @@ export const Card = ({
   disabled,
   type,
 }: Props) => {
-  // const [audio, _, controls] = useAudio({ src: audioSrc || "" });
+  const [audio, _, controls] = useAudio({ src: audioSrc || "" });
 
-  // const handleClick = useCallback(() => {
-  //   if (disabled) return;
+  const handleClick = useCallback(() => {
+    console.log("clicked")
+    if (disabled === null) {
+      return
+    }
 
-  //   controls.play();
-  //   onClick();
-  // }, [disabled, onClick, controls]);
+    controls.play();
+    onClick()
 
-  const handleClick = () => { }
+
+  }, [disabled, controls, onClick]);
 
   // useKey(shortcut, handleClick, {}, [handleClick]);
+  useKey(shortcut, handleClick, { event: "keydown" }, [handleClick])
 
   return (
     <div
@@ -58,7 +64,7 @@ export const Card = ({
         type === "ASSIST" && "lg:p-3 w-full"
       )}
     >
-      {/* {audio} */}
+      {audio}
       {imageSrc && (
         <div
           className="relative aspect-square mb-4 max-h-[80px] lg:max-h-[150px] w-full"
