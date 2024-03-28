@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useTransition } from 'react'
 import { challengeOptions, challenges, userSubscription } from '../../../../db/schema';
 import Header from './header';
 import QuestionBubble from './question-bubble';
 import Challenge from './challenge';
+import Footer from './Footer';
 
 interface Props {
   initialPercentage: number;
@@ -39,6 +40,7 @@ const Quiz = ({
   });
   const [selectedOption, setSelectedOption] = useState<number | undefined>(undefined);
   const [status, setStatus] = useState<"correct" | "wrong" | "none">("none")
+  const [pending, startTransition] = useTransition()
 
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
@@ -50,11 +52,19 @@ const Quiz = ({
 
   const onHandleAnswerSelected = (id: number) => {
     setSelectedOption(id)
+  }
+
+  const onContinue = () => {
+    console.log("button clicked")
+
+    console.log("selected id", selectedOption)
+
+
 
   }
 
   return (
-    <>
+    <div className='h-full flex flex-col'>
       <Header
         hearts={initialHearts}
         percentage={initialPercentage}
@@ -78,24 +88,17 @@ const Quiz = ({
                 disabled={false}
                 type={challenge.type}
               />
-              {/* <Challenge
-                options={options}
-                onSelect={onSelect}
-                status={status}
-                selectedOption={selectedOption}
-                disabled={pending}
-                type={challenge.type}
-              /> */}
             </div>
           </div>
         </div>
       </div>
-      {/* <Footer
+      <Footer
         disabled={pending || !selectedOption}
-        status={status}
+        status={"none"} // none, correct, wrong
         onCheck={onContinue}
-      /> */}
-    </>
+        lessonId={lessonId}
+      />
+    </div>
   )
 }
 

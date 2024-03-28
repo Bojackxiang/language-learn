@@ -24,13 +24,13 @@ const LessonPage = async () => {
 
 
   return (
-    <div>
-      <Quiz initialHearts={userProgress.hearts}
-        initialPercentage={challengeCompletedPercentage}
-        initialLessonId={currentLession.id}
-        initialLessonChallenges={currentLession.challenges}
-        userSubscription={null} />
-    </div>
+
+    <Quiz initialHearts={userProgress.hearts}
+      initialPercentage={challengeCompletedPercentage}
+      initialLessonId={currentLession.id}
+      initialLessonChallenges={currentLession.challenges}
+      userSubscription={null} />
+
   )
 }
 

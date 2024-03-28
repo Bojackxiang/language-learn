@@ -5,9 +5,7 @@ export default function LessonLayout({
 }>) {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex flex-col h-full w-full">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
