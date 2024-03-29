@@ -8,23 +8,27 @@ export const getCourses = cache(async () => {
   return db.query.courses.findMany()
 })
 
-export const getUserProgress = cache(async () => {
+export const getUserProgress = async () => {
   const { userId } = auth()
 
   if (!userId) {
     return null;
   }
 
-  return db.query.userProgress.findFirst(
+  const foundUserProgress = await db.query.userProgress.findFirst(
     {
       where: eq(userProgress.userId, userId),
       with: {
         activeCourse: true
       }
     }
-  )
+  );
+
+  return foundUserProgress
+
 }
-)
+
+
 
 export const getCourseById = cache(async (courseId: number) => {
 
@@ -129,14 +133,13 @@ export const getCourseProgress = cache(async () => {
       });
     });
 
-
   return {
     activeLesson: firstUncompletedLesson,
     activeLessonId: firstUncompletedLesson?.id,
   };
 });
 
-export const getLesson = cache(async (id?: number) => {
+export const getLesson = async (id?: number) => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -179,7 +182,7 @@ export const getLesson = cache(async (id?: number) => {
   });
 
   return { ...data, challenges: normalizedChallenges }
-});
+};
 
 export const getLessionPercentage = cache(async () => {
   const { userId } = await auth();

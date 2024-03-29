@@ -1,11 +1,18 @@
 "use client"
 
 import React, { useState, useTransition } from 'react'
-import { challengeOptions, challenges, userSubscription } from '../../../../db/schema';
+import { toast } from "sonner"
+
 import Header from './header';
 import QuestionBubble from './question-bubble';
 import Challenge from './challenge';
 import Footer from './Footer';
+
+import { upsertChallengeProgress } from '@/actions/challenge-progress';
+
+import { challengeOptions, challenges, userSubscription } from '../../../../db/schema';
+import { ERRORS } from '@/constants/error-code';
+
 
 interface Props {
   initialPercentage: number;
@@ -28,10 +35,15 @@ const Quiz = ({
   userSubscription
 }: Props) => {
 
+  console.log({ initialPercentage });
+
   const [lessonId] = useState(initialLessonId);
   const [hearts, setHearts] = useState(initialHearts);
   const [percentage, setPercentage] = useState(() => {
-    return initialPercentage === 100 ? 0 : initialPercentage;
+    if (initialPercentage > 0.001) {
+      return initialPercentage
+    }
+    return 0.001
   });
   const [challenges] = useState(initialLessonChallenges);
   const [activeIndex, setActiveIndex] = useState(() => {
@@ -54,20 +66,73 @@ const Quiz = ({
     setSelectedOption(id)
   }
 
+  const onNext = () => {
+    // GO TO THE NEXT QUESTION
+    setActiveIndex((current) => current + 1);
+  }
+
   const onContinue = () => {
-    console.log("button clicked")
 
-    console.log("selected id", selectedOption)
+    if (!selectedOption) return;
 
+    // handle if option is already already picked - wrong
+    if (status === "wrong") {
+      setStatus("none");
+      setSelectedOption(undefined);
+      return;
+    }
+
+    // handle if option is already already picked - correct
+    if (status === "correct") {
+      onNext();
+      setStatus("none");
+      setSelectedOption(undefined);
+      return;
+    }
+
+
+    // find the coprrect option from the response
+    const correctOption = options.find((option) => option.correct);
+    if (!correctOption) return;
+
+    // hadle correct option
+    if (correctOption.id === selectedOption) {
+      startTransition(() => {
+        // async function
+        console.log(challenges.length)
+        console.log(percentage);
+        // return;
+        upsertChallengeProgress(challenge.id)
+          .then(response => {
+            if (response?.error === ERRORS.HEARTS) {
+              console.log(ERRORS.HEARTS)
+              return;
+            }
+
+            // update ui state
+            setStatus("correct")
+            setPercentage((prev) => prev + 1 / challenges.length);
+            if (percentage === 100) {
+              setHearts(prev => Math.min(prev + 1, 5))
+            }
+
+          })
+          .catch(e => toast.error(ERRORS.SOMETHING_IS_WRONG))
+
+      });
+    } else {
+
+    }
 
 
   }
 
   return (
     <div className='h-full flex flex-col'>
+      {percentage}
       <Header
         hearts={initialHearts}
-        percentage={initialPercentage}
+        percentage={percentage * 100}
         hasActiveSubscription={!!userSubscription?.isActive}
       />
       <div className="flex-1">
@@ -94,7 +159,7 @@ const Quiz = ({
       </div>
       <Footer
         disabled={pending || !selectedOption}
-        status={"none"} // none, correct, wrong
+        status={status} // none, correct, wrong
         onCheck={onContinue}
         lessonId={lessonId}
       />
