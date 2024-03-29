@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition } from 'react'
 import { toast } from "sonner"
+import { useRouter } from 'next/navigation';
 
 import Header from './header';
 import QuestionBubble from './question-bubble';
@@ -34,9 +35,6 @@ const Quiz = ({
   initialLessonChallenges,
   userSubscription
 }: Props) => {
-
-  console.log({ initialPercentage });
-
   const [lessonId] = useState(initialLessonId);
   const [hearts, setHearts] = useState(initialHearts);
   const [percentage, setPercentage] = useState(() => {
@@ -56,9 +54,10 @@ const Quiz = ({
 
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
+  const router = useRouter()
 
 
-  const title = challenge.type === "ASSIST"
+  const title = challenge?.type === "ASSIST"
     ? "Select the correct meaning"
     : challenge.question;
 
@@ -67,8 +66,11 @@ const Quiz = ({
   }
 
   const onNext = () => {
-    // GO TO THE NEXT QUESTION
-    setActiveIndex((current) => current + 1);
+    if (activeIndex + 1 >= challenges.length) {
+      router.push('/learn')
+    } else {
+      setActiveIndex((current) => current + 1);
+    }
   }
 
   const onContinue = () => {
@@ -98,14 +100,10 @@ const Quiz = ({
     // hadle correct option
     if (correctOption.id === selectedOption) {
       startTransition(() => {
-        // async function
-        console.log(challenges.length)
-        console.log(percentage);
         // return;
         upsertChallengeProgress(challenge.id)
           .then(response => {
             if (response?.error === ERRORS.HEARTS) {
-              console.log(ERRORS.HEARTS)
               return;
             }
 
@@ -121,15 +119,12 @@ const Quiz = ({
 
       });
     } else {
-
+      // TODO: WHEN USER PICKED WRONG OPTION FOR THE CHALLENGE
     }
-
-
   }
 
   return (
     <div className='h-full flex flex-col'>
-      {percentage}
       <Header
         hearts={initialHearts}
         percentage={percentage * 100}

@@ -12,7 +12,6 @@ const LessonPage = async () => {
   // get user progress data 
   const userProgress = await getUserProgress()
 
-
   if (!currentLesson || !userProgress) {
     console.warn("not currentLession or userProgress, redirecting ...")
     redirect("/learn")
