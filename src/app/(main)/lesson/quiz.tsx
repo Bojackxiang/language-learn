@@ -9,7 +9,7 @@ import QuestionBubble from './question-bubble';
 import Challenge from './challenge';
 import Footer from './Footer';
 
-import { upsertChallengeProgress } from '@/actions/challenge-progress';
+import { reduceHearts, upsertChallengeProgress } from '@/actions/challenge-progress';
 
 import { challengeOptions, challenges, userSubscription } from '../../../../db/schema';
 import { ERRORS } from '@/constants/error-code';
@@ -56,6 +56,10 @@ const Quiz = ({
   const options = challenge?.challengeOptions ?? [];
   const router = useRouter()
 
+  if (!challenge) {
+    return <div>All challenges has been finished</div>
+  }
+
 
   const title = challenge?.type === "ASSIST"
     ? "Select the correct meaning"
@@ -66,11 +70,15 @@ const Quiz = ({
   }
 
   const onNext = () => {
-    if (activeIndex + 1 >= challenges.length) {
-      router.push('/learn')
-    } else {
-      setActiveIndex((current) => current + 1);
-    }
+    // solution 1
+    setActiveIndex((current) => current + 1);
+
+    // solution 2
+    // if (activeIndex + 1 >= challenges.length) {
+    //   router.push('/learn')
+    // } else {
+    //   setActiveIndex((current) => current + 1);
+    // }
   }
 
   const onContinue = () => {
@@ -119,9 +127,25 @@ const Quiz = ({
 
       });
     } else {
-      // TODO: WHEN USER PICKED WRONG OPTION FOR THE CHALLENGE
+      // return
+      startTransition(() => {
+        reduceHearts(challenge.id)
+          .then(response => {
+            if (response?.error === ERRORS.NOT_ENOUGH_HEARTS) {
+              console.log('not enough hearts ')
+            }
+            setStatus("wrong")
+            setHearts(prev => Math.max(prev - 1, 0))
+          })
+          .catch((e: any) => {
+            console.log("reduce hearts error", e.message)
+            toast.error(ERRORS.SOMETHING_IS_WRONG)
+          })
+      })
     }
   }
+
+
 
   return (
     <div className='h-full flex flex-col'>

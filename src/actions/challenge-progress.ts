@@ -94,5 +94,70 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 
 }
 
+export const reduceHearts = async (challengeId: number) => {
+  try {
+    console.log("reduce hearts")
+    const { userId } = auth()
+    if (!userId) {
+      return { error: ERRORS.NO_USER }
+    }
+
+    const currentUserProgress = await getUserProgress();
+    // const userSubscription = await getUserSubscription();
+
+    const challenge = await db.query.challenges.findFirst({
+      where: eq(challenges.id, challengeId),
+    });
+
+    if (!challenge) {
+      throw new Error("Challenge not found");
+    }
+
+    const lessonId = challenge.lessonId;
+
+    const existingChallengeProgress = await db.query.challengeProgress.findFirst({
+      where: and(
+        eq(challengeProgress.userId, userId),
+        eq(challengeProgress.challengeId, challengeId),
+      ),
+    });
+
+    // const isPractice = !!existingChallengeProgress;
+    const isPractice = false;
+
+    if (isPractice) {
+      console.log("jump out isPractice");
+      return { error: "practice" };
+    }
+
+    if (!currentUserProgress) {
+      throw new Error("User progress not found");
+    }
+
+    // if (userSubscription?.isActive) {
+    //   return { error: "subscription" };
+    // }
+    console.log('currentUserProgress: ', currentUserProgress);
+
+    if (currentUserProgress.hearts === 0) {
+      console.debug("JUMP OUT: currentUserProgress.hearts === 0");
+      return { error: ERRORS.NOT_ENOUGH_HEARTS };
+    }
+
+    await db.update(userProgress).set({
+      hearts: Math.max(currentUserProgress.hearts - 1, 0),
+    }).where(eq(userProgress.userId, userId));
+
+    revalidatePath("/shop");
+    revalidatePath("/learn");
+    revalidatePath("/quests");
+    revalidatePath("/leaderboard");
+    revalidatePath(`/lesson/${lessonId}`);
+
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 
 
